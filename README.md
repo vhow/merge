@@ -4,7 +4,7 @@
 An open source version of 2048 that runs on Android devices. This project is only for **studying**, do NOT use it for commercial purpose.
 ##### Why it calls 2048 mini
 * It copies the idea and only the idea of 2048.
-* The size of the final APK file is small. (34KB for now)
+* The size of the final APK file is small. (32KB for now)
 
 
 ##### What it looks like now
