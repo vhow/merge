@@ -31,8 +31,8 @@ public class NumbersGridView extends GridView {
                         final float absY = Math.abs(velocityY);
                         final float deltaX = e2.getX() - e1.getX();
                         final float deltaY = e2.getY() - e1.getY();
-                        final int travelX = getWidth() / 10;
-                        final int travelY = getHeight() / 10;
+                        final int travelX = getWidth() / 20;
+                        final int travelY = travelX;
                         if (absY < absX && deltaX < -travelX) {
                             mOnSwipeListener.onSwipe(Direction.LEFT);
                             return true;

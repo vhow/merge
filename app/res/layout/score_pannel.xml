@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scorePannel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:focusable="false"
+    android:baselineAligned="false"
+    android:divider="@drawable/divider_ver"
+    android:showDividers="middle" >
+
+    <TextSwitcher
+        android:id="@+id/score"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center" >
+    </TextSwitcher>
+
+    <TextSwitcher
+        android:id="@+id/maxScore"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center" >
+    </TextSwitcher>
+
+</LinearLayout>

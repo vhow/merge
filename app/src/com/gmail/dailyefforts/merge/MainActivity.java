@@ -11,9 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
+import android.widget.TextSwitcher;
+import android.widget.ViewSwitcher.ViewFactory;
 
 public class MainActivity extends Activity {
 
@@ -23,11 +25,7 @@ public class MainActivity extends Activity {
     private static final int ROW = 4;
     private static final int COL = 4;
     private static int[][] sMatrix = new int[ROW][COL];
-
-    private NumbersGridView mGridView;
-    private long mCurrentSorce;
-    private long mMaxScore;
-
+    private static ArrayList<Integer> sEmptyList = new ArrayList<Integer>();
     private static final int[] BgIds = {
             R.drawable.item_bg,
             R.drawable.item_bg_2, R.drawable.item_bg_4, R.drawable.item_bg_8,
@@ -36,9 +34,13 @@ public class MainActivity extends Activity {
             R.drawable.item_bg_256, R.drawable.item_bg_512,
             R.drawable.item_bg_1024, R.drawable.item_bg_2048,
     };
-
+    private NumbersGridView mGridView;
+    private long mCurrentSorce;
+    private long mMaxScore;
     private GridAdapter mAdapter;
     private SharedPreferences mSharedPrefs;
+    private TextSwitcher mScoreTextSwitcher;
+    private TextSwitcher mMaxScoreTextSwitcher;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -75,8 +77,6 @@ public class MainActivity extends Activity {
         mCurrentSorce = 0;
     }
 
-    private static ArrayList<Integer> emptyList = new ArrayList<Integer>();
-
     private void setValue(final int position, final int value) {
         assert (position > 0 && position < ROW * COL);
         final int row = position / COL;
@@ -89,11 +89,11 @@ public class MainActivity extends Activity {
     }
 
     private void updateEmptyList() {
-        emptyList.clear();
+        sEmptyList.clear();
         for (int i = 0; i < ROW; i++) {
             for (int j = 0; j < COL; j++) {
                 if (sMatrix[i][j] == EMPTY) {
-                    emptyList.add(i * ROW + j);
+                    sEmptyList.add(i * ROW + j);
                 }
             }
         }
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        long max = mSharedPrefs.getLong(MAX_SCORE, 0L);
+        final long max = mSharedPrefs.getLong(MAX_SCORE, 0L);
         if (max < mMaxScore) {
             mSharedPrefs.edit().putLong(MAX_SCORE, mMaxScore).commit();
         }
@@ -111,10 +111,10 @@ public class MainActivity extends Activity {
 
     private boolean newNum() {
         udpateScore();
-        final int len = emptyList.size();
+        final int len = sEmptyList.size();
         if (len > 0) {
             final int index = new Random().nextInt(len);
-            final int position = emptyList.get(index);
+            final int position = sEmptyList.get(index);
             setValue(position, 2);
             final View child = mGridView.getChildAt(position);
             if (child != null) {
@@ -127,13 +127,11 @@ public class MainActivity extends Activity {
     }
 
     private void udpateScore() {
-        TextView tv = (TextView) findViewById(R.id.score);
-        if (tv != null) {
-            tv.setText(String.valueOf(mCurrentSorce));
+        if (mScoreTextSwitcher != null && mMaxScoreTextSwitcher != null) {
+            mScoreTextSwitcher.setText(String.valueOf(mCurrentSorce));
             if (mCurrentSorce > mMaxScore) {
-                TextView max = (TextView) findViewById(R.id.maxScore);
                 mMaxScore = mCurrentSorce;
-                max.setText(String.valueOf(mMaxScore));
+                mMaxScoreTextSwitcher.setText(String.valueOf(mMaxScore));
             }
         }
     }
@@ -142,7 +140,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mGridView = (NumbersGridView) findViewById(R.id.gridView);
         mAdapter = new GridAdapter();
         mGridView.setOnChangedListener(new NumbersGridView.OnSwipeListener() {
@@ -158,8 +155,8 @@ public class MainActivity extends Activity {
                                         sMatrix[row][col + 1] = EMPTY;
                                     } else if (sMatrix[row][col] == sMatrix[row][col + 1]) {
                                         sMatrix[row][col] = sMatrix[row][col] << 1;
-                                        mCurrentSorce += sMatrix[row][col];
                                         sMatrix[row][col + 1] = EMPTY;
+                                        mCurrentSorce += sMatrix[row][col];
                                     }
                                 }
                             }
@@ -169,16 +166,13 @@ public class MainActivity extends Activity {
                         for (int row = 0; row < ROW; row++) {
                             for (int k = 0; k < ROW; k++) {
                                 for (int col = COL - 1; col > 0; col--) {
-                                    boolean merged = false;
                                     if (sMatrix[row][col] == EMPTY) {
                                         sMatrix[row][col] = sMatrix[row][col - 1];
                                         sMatrix[row][col - 1] = EMPTY;
-                                    } else if (!merged
-                                            && sMatrix[row][col] == sMatrix[row][col - 1]) {
+                                    } else if (sMatrix[row][col] == sMatrix[row][col - 1]) {
                                         sMatrix[row][col] = sMatrix[row][col] << 1;
                                         sMatrix[row][col - 1] = EMPTY;
                                         mCurrentSorce += sMatrix[row][col];
-                                        merged = true;
                                     }
                                 }
                             }
@@ -209,9 +203,9 @@ public class MainActivity extends Activity {
                                         sMatrix[row][col] = sMatrix[row - 1][col];
                                         sMatrix[row - 1][col] = EMPTY;
                                     } else if (sMatrix[row][col] == sMatrix[row - 1][col]) {
-                                        sMatrix[row - 1][col] = sMatrix[row - 1][col] << 1;
+                                        sMatrix[row][col] = sMatrix[row][col] << 1;
+                                        sMatrix[row - 1][col] = EMPTY;
                                         mCurrentSorce += sMatrix[row][col];
-                                        sMatrix[row][col] = EMPTY;
                                     }
                                 }
                             }
@@ -229,8 +223,27 @@ public class MainActivity extends Activity {
         mSharedPrefs = getSharedPreferences(PREFS_FIlE_NAME, MODE_PRIVATE);
         mCurrentSorce = 0;
         mMaxScore = mSharedPrefs.getLong(MAX_SCORE, 0L);
-        final TextView max = (TextView) findViewById(R.id.maxScore);
-        max.setText(String.valueOf(mMaxScore));
+        final ViewFactory factory = new ViewFactory() {
+
+            @Override
+            public View makeView() {
+                return getLayoutInflater().inflate(R.layout.score_text_view, null);
+            }
+        };
+        mScoreTextSwitcher = (TextSwitcher) findViewById(R.id.score);
+        mScoreTextSwitcher.setFactory(factory);
+        final Animation outAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.fade_out);
+        final Animation inAnim = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.fade_in);
+        mScoreTextSwitcher.setInAnimation(inAnim);
+        mScoreTextSwitcher.setOutAnimation(outAnim);
+        mScoreTextSwitcher.setText(String.valueOf(mCurrentSorce));
+        mMaxScoreTextSwitcher = (TextSwitcher) findViewById(R.id.maxScore);
+        mMaxScoreTextSwitcher.setFactory(factory);
+        mMaxScoreTextSwitcher.setInAnimation(inAnim);
+        mMaxScoreTextSwitcher.setOutAnimation(outAnim);
+        mMaxScoreTextSwitcher.setText(String.valueOf(mMaxScore));
     }
 
     private static class ViewHolder {

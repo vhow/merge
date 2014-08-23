@@ -10,38 +10,20 @@
     tools:context=".MainActivity" >
 
     <com.gmail.dailyefforts.merge.NumbersGridView
+        android:paddingTop="10dp"
         android:id="@+id/gridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:horizontalSpacing="2dp"
         android:numColumns="4"
         android:verticalSpacing="2dp" />
 
-    <LinearLayout
+    <include
         android:id="@+id/scorePannel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:showDividers="middle"
-        android:divider="@android:drawable/divider_horizontal_bright" >
-
-        <TextView
-            android:id="@+id/score"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:text="0" />
-
-        <TextView
-            android:id="@+id/maxScore"
-            android:layout_width="0dp"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="0" />
-    </LinearLayout>
+        layout="@layout/score_pannel" />
 
 </RelativeLayout>
