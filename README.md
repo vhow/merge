@@ -8,8 +8,8 @@ A version of 2048 written in JavaFX.
 
 ## JAR
 
-Download [JavaFX_2048.jar](https://github.com/vhow/2048/blob/master/JavaFX_2048.jar?raw=true)
+Download [JavaFX_2048.jar](https://github.com/vhow/merge/raw/master/JavaFX_2048.jar)
 
 ## License
 
-[Apache License Version 2.0](https://github.com/vhow/2048/blob/master/LICENSE)
+[Apache License Version 2.0](https://github.com/vhow/merge/blob/master/LICENSE)
